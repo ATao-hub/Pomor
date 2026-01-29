@@ -138,4 +138,3 @@ ipcMain.handle('stats:deleteSession', async (event, payload) => {
 
   return stats;
 });
-

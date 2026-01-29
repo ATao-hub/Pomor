@@ -134,16 +134,98 @@
     });
   }
 
-  // 彩蛋：点击 Pomor（导航或页脚品牌）满 5 次后播放音乐；播放结束后自动重置计数，可再次触发；音量为一半
+  // 彩蛋：点击 Pomor 满 5 次后播放音乐 + 烟花绽放；播放结束后重置计数；音量为一半
   const POMOR_CLICK_THRESHOLD = 5;
   const POMOR_MUSIC_FILENAME = 'assets/Standard%20recording%201.mp3';
   const POMOR_MUSIC_VOLUME = 0.5;
+  const FIREWORK_BURST_SPAN_MS = 10000;
+  const FIREWORK_COLORS = ['#f97316', '#ec4899', '#a855f7', '#fbbf24', '#22d3ee'];
   let pomorClickCount = 0;
   let pomorMusicPlayed = false;
 
   function getPomorMusicUrl() {
     const base = location.href.replace(/\/[^/]*$/, '/');
     return base + POMOR_MUSIC_FILENAME;
+  }
+
+  function startFireworkEffect() {
+    const canvas = document.createElement('canvas');
+    canvas.id = 'pomor-firework-canvas';
+    canvas.style.cssText = 'position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:9999;';
+    document.body.appendChild(canvas);
+    const ctx = canvas.getContext('2d');
+    let w = (canvas.width = window.innerWidth);
+    let h = (canvas.height = window.innerHeight);
+    window.addEventListener('resize', () => {
+      w = canvas.width = window.innerWidth;
+      h = canvas.height = window.innerHeight;
+    });
+
+    const particles = [];
+    function makeBurst(x, y) {
+      const count = 60 + Math.floor(Math.random() * 40);
+      const speed = 4 + Math.random() * 4;
+      for (let i = 0; i < count; i++) {
+        const angle = (Math.PI * 2 * i) / count + Math.random() * 0.5;
+        const vx = Math.cos(angle) * speed * (0.6 + Math.random() * 0.8);
+        const vy = Math.sin(angle) * speed * (0.6 + Math.random() * 0.8);
+        particles.push({
+          x,
+          y,
+          vx,
+          vy,
+          color: FIREWORK_COLORS[Math.floor(Math.random() * FIREWORK_COLORS.length)],
+          life: 1,
+          decay: 0.008 + Math.random() * 0.008
+        });
+      }
+    }
+
+    const burstSchedule = [];
+    const burstCount = 22;
+    for (let i = 0; i < burstCount; i++) {
+      burstSchedule.push({
+        t: Math.random() * FIREWORK_BURST_SPAN_MS,
+        x: w * 0.15 + Math.random() * w * 0.7,
+        y: h * 0.2 + Math.random() * h * 0.5
+      });
+    }
+    burstSchedule.sort((a, b) => a.t - b.t);
+    const startTime = Date.now();
+    let rafId;
+
+    function tick() {
+      const elapsed = Date.now() - startTime;
+      ctx.fillStyle = 'rgba(6,9,19,0.12)';
+      ctx.fillRect(0, 0, w, h);
+      while (burstSchedule.length && burstSchedule[0].t <= elapsed) {
+        const b = burstSchedule.shift();
+        makeBurst(b.x, b.y);
+      }
+      for (let i = particles.length - 1; i >= 0; i--) {
+        const p = particles[i];
+        p.vy += 0.08;
+        p.x += p.vx;
+        p.y += p.vy;
+        p.life -= p.decay;
+        if (p.life <= 0) {
+          particles.splice(i, 1);
+          continue;
+        }
+        ctx.globalAlpha = p.life;
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 2, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+      if (elapsed < FIREWORK_BURST_SPAN_MS || particles.length > 0) {
+        rafId = requestAnimationFrame(tick);
+      } else {
+        canvas.remove();
+      }
+    }
+    rafId = requestAnimationFrame(tick);
   }
 
   function setupPomorEasterEgg() {
@@ -154,6 +236,7 @@
         pomorClickCount += 1;
         if (pomorClickCount >= POMOR_CLICK_THRESHOLD && !pomorMusicPlayed) {
           pomorMusicPlayed = true;
+          startFireworkEffect();
           const audio = new Audio(getPomorMusicUrl());
           audio.volume = POMOR_MUSIC_VOLUME;
           audio.addEventListener('ended', () => {
