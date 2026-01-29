@@ -134,9 +134,10 @@
     });
   }
 
-  // 彩蛋：点击 Pomor（导航或页脚品牌）满 5 次后播放音乐；播放结束后自动重置计数，可再次触发
+  // 彩蛋：点击 Pomor（导航或页脚品牌）满 5 次后播放音乐；播放结束后自动重置计数，可再次触发；音量为一半
   const POMOR_CLICK_THRESHOLD = 5;
   const POMOR_MUSIC_FILENAME = 'assets/Standard%20recording%201.mp3';
+  const POMOR_MUSIC_VOLUME = 0.5;
   let pomorClickCount = 0;
   let pomorMusicPlayed = false;
 
@@ -154,9 +155,14 @@
         if (pomorClickCount >= POMOR_CLICK_THRESHOLD && !pomorMusicPlayed) {
           pomorMusicPlayed = true;
           const audio = new Audio(getPomorMusicUrl());
+          audio.volume = POMOR_MUSIC_VOLUME;
           audio.addEventListener('ended', () => {
             pomorClickCount = 0;
             pomorMusicPlayed = false;
+          });
+          audio.addEventListener('error', () => {
+            pomorMusicPlayed = false;
+            window.alert('音乐加载失败：请确认 docs/assets/Standard recording 1.mp3 已推送到 GitHub，且文件名正确。');
           });
           audio.play().catch(() => {
             pomorMusicPlayed = false;
