@@ -133,5 +133,34 @@
       }
     });
   }
+
+  // 彩蛋：点击 Pomor（导航或页脚品牌）满 5 次后播放音乐（需把 MP3 放到 docs/assets/ 下）
+  const POMOR_CLICK_THRESHOLD = 5;
+  const POMOR_MUSIC_URL = 'assets/Standard%20recording%201.mp3';
+  let pomorClickCount = 0;
+  let pomorMusicPlayed = false;
+
+  function setupPomorEasterEgg() {
+    const els = document.querySelectorAll('.brand, .brand-mini');
+    if (!els.length) return;
+    els.forEach((el) => {
+      el.addEventListener('click', (e) => {
+        pomorClickCount += 1;
+        if (pomorClickCount >= POMOR_CLICK_THRESHOLD && !pomorMusicPlayed) {
+          pomorMusicPlayed = true;
+          const audio = new Audio(POMOR_MUSIC_URL);
+          audio.play().catch(() => {
+            window.alert('音乐未播放：请确认已将 Standard recording 1.mp3 放到 docs/assets/ 并已推送到 GitHub。');
+          });
+        }
+      });
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setupPomorEasterEgg);
+  } else {
+    setupPomorEasterEgg();
+  }
 })();
 
