@@ -98,30 +98,42 @@
                 await audioCtx.resume();
               }
 
-              const osc = audioCtx.createOscillator();
-              const gain = audioCtx.createGain();
-              const filter = audioCtx.createBiquadFilter();
-              filter.type = 'lowpass';
-              filter.frequency.value = 1800;
-              filter.Q.value = 0.5;
+              // 柔和钟声提醒：类似冥想钟，轻柔不打扰专注状态
+              // 播放 3 声轻柔的钟声，间隔 1.2 秒
+              const playChime = (startTime, frequency, volume) => {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                const filter = audioCtx.createBiquadFilter();
+                
+                // 低通滤波让声音更柔和
+                filter.type = 'lowpass';
+                filter.frequency.value = 800;
+                filter.Q.value = 0.3;
 
-              // 温和提示音：较低音高、较小音量、低通柔化，约 2s
-              const durationSeconds = 2;
-              osc.type = 'sine';
-              osc.frequency.value = 440;
+                osc.type = 'sine';
+                osc.frequency.value = frequency;
+
+                // 缓慢渐入，自然衰减（像钟声）
+                const chimeDuration = 2.5;
+                gain.gain.setValueAtTime(0.0001, startTime);
+                gain.gain.exponentialRampToValueAtTime(volume, startTime + 0.15);
+                gain.gain.exponentialRampToValueAtTime(volume * 0.6, startTime + 0.5);
+                gain.gain.exponentialRampToValueAtTime(0.0001, startTime + chimeDuration);
+
+                osc.connect(filter);
+                filter.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                osc.start(startTime);
+                osc.stop(startTime + chimeDuration + 0.1);
+              };
 
               const now = audioCtx.currentTime;
-              gain.gain.setValueAtTime(0.0001, now);
-              gain.gain.exponentialRampToValueAtTime(0.22, now + 0.05);
-              gain.gain.setValueAtTime(0.22, now + durationSeconds - 0.1);
-              gain.gain.exponentialRampToValueAtTime(0.0001, now + durationSeconds);
+              // 三声柔和钟声：频率略有变化，模拟自然钟声泛音
+              playChime(now, 392, 0.12);        // G4 - 第一声
+              playChime(now + 1.2, 440, 0.10);  // A4 - 第二声稍轻
+              playChime(now + 2.4, 392, 0.08);  // G4 - 第三声最轻
 
-              osc.connect(filter);
-              filter.connect(gain);
-              gain.connect(audioCtx.destination);
-
-              osc.start(now);
-              osc.stop(now + durationSeconds + 0.02);
             } catch {
               // 忽略音频失败（不会影响计时器主流程）
             }

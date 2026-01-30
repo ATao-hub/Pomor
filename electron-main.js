@@ -114,15 +114,11 @@ ipcMain.handle('stats:deleteSession', async (event, payload) => {
   const s = await getStore();
   if (!date || typeof index !== 'number' || index < 0) {
     return s.get('stats') || {};
-  }
-
-  const stats = s.get('stats') || {};
+  }  const stats = s.get('stats') || {};
   const current = stats[date];
   if (!current || !Array.isArray(current.items) || index >= current.items.length) {
     return stats;
-  }
-
-  const item = current.items[index];
+  }  const item = current.items[index];
   const updated = {
     totalSeconds: Math.max(0, current.totalSeconds - (item?.seconds || 0)),
     sessions: Math.max(0, (current.sessions || 1) - 1),
