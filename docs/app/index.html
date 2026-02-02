@@ -1,0 +1,1843 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pomor - 在线番茄钟</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(145deg, #f5f7fa 0%, #e4e8ed 50%, #dde3ea 100%);
+      color: #2d3748;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 60px;
+      padding: 0 60px;
+    }
+
+    .logo {
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      color: #e07b54;
+      text-decoration: none;
+      text-shadow: 0 1px 2px rgba(255,255,255,0.8);
+    }
+
+    /* Main Content */
+    .main {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px 60px 40px;
+      gap: 32px;
+    }
+
+    /* Timer Section - Neumorphic Style */
+    .timer-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 32px;
+    }
+
+    /* Timer Container - Neumorphic Design */
+    .timer-container {
+      position: relative;
+      width: 320px;
+      height: 320px;
+      border-radius: 50%;
+      background: linear-gradient(145deg, #ffffff, #e6e9ed);
+      box-shadow: 
+        20px 20px 60px rgba(163, 177, 198, 0.6),
+        -20px -20px 60px rgba(255, 255, 255, 0.9),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .timer-inner-ring {
+      position: absolute;
+      width: 280px;
+      height: 280px;
+      border-radius: 50%;
+      background: linear-gradient(145deg, #e8ecf1, #ffffff);
+      box-shadow: 
+        inset 8px 8px 20px rgba(163, 177, 198, 0.5),
+        inset -8px -8px 20px rgba(255, 255, 255, 0.9);
+    }
+
+    .timer-ring-wrapper {
+      position: absolute;
+      width: 260px;
+      height: 260px;
+    }
+
+    .timer-ring {
+      width: 100%;
+      height: 100%;
+      transform: rotate(-90deg);
+    }
+
+    .timer-ring-bg {
+      fill: none;
+      stroke: rgba(200, 210, 220, 0.4);
+      stroke-width: 12;
+    }
+
+    .timer-ring-progress {
+      fill: none;
+      stroke: url(#timerGradient);
+      stroke-width: 12;
+      stroke-linecap: round;
+      stroke-dasharray: 754;
+      stroke-dashoffset: 0;
+      transition: stroke-dashoffset 0.3s ease;
+      filter: drop-shadow(0 2px 4px rgba(224, 123, 84, 0.3));
+    }
+
+    .timer-inner {
+      position: absolute;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      z-index: 1;
+    }
+
+    .timer-time {
+      font-size: 64px;
+      font-weight: 300;
+      color: #3d4a5c;
+      letter-spacing: -2px;
+      font-variant-numeric: tabular-nums;
+      text-shadow: 0 2px 4px rgba(255,255,255,0.8);
+    }
+
+    .timer-label {
+      font-size: 14px;
+      font-weight: 500;
+      color: #8896a6;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    /* Controls - Neumorphic Buttons */
+    .controls {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+    }
+
+    .btn-start {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      width: 180px;
+      height: 60px;
+      border-radius: 30px;
+      background: linear-gradient(145deg, #e07b54, #d06a45);
+      border: none;
+      cursor: pointer;
+      box-shadow: 
+        6px 6px 16px rgba(163, 177, 198, 0.5),
+        -4px -4px 12px rgba(255, 255, 255, 0.8),
+        inset 0 1px 0 rgba(255,255,255,0.3);
+      transition: all 0.2s ease;
+    }
+
+    .btn-start:hover {
+      background: linear-gradient(145deg, #e88a66, #d97755);
+      transform: translateY(-2px);
+      box-shadow: 
+        8px 8px 20px rgba(163, 177, 198, 0.6),
+        -6px -6px 16px rgba(255, 255, 255, 0.9);
+    }
+
+    .btn-start:active {
+      transform: translateY(0);
+      box-shadow: 
+        inset 4px 4px 8px rgba(180, 90, 60, 0.3),
+        inset -2px -2px 6px rgba(255, 255, 255, 0.2);
+    }
+
+    .btn-start svg {
+      width: 22px;
+      height: 22px;
+      fill: #FFFFFF;
+    }
+
+    .btn-start span {
+      font-size: 16px;
+      font-weight: 600;
+      color: #FFFFFF;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    }
+
+    .btn-reset {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: linear-gradient(145deg, #ffffff, #e6e9ed);
+      border: none;
+      cursor: pointer;
+      box-shadow: 
+        6px 6px 16px rgba(163, 177, 198, 0.5),
+        -4px -4px 12px rgba(255, 255, 255, 0.8);
+      transition: all 0.2s ease;
+    }
+
+    .btn-reset:hover {
+      transform: translateY(-2px);
+      box-shadow: 
+        8px 8px 20px rgba(163, 177, 198, 0.6),
+        -6px -6px 16px rgba(255, 255, 255, 0.9);
+    }
+
+    .btn-reset:active {
+      box-shadow: 
+        inset 4px 4px 8px rgba(163, 177, 198, 0.5),
+        inset -2px -2px 6px rgba(255, 255, 255, 0.7);
+    }
+
+    .btn-reset svg {
+      width: 22px;
+      height: 22px;
+      stroke: #8896a6;
+      fill: none;
+      stroke-width: 2;
+    }
+
+    /* Presets - Neumorphic Style */
+    .presets {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .preset {
+      padding: 14px 28px;
+      border-radius: 24px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: none;
+      background: linear-gradient(145deg, #ffffff, #e6e9ed);
+      color: #5a6a7a;
+      box-shadow: 
+        5px 5px 12px rgba(163, 177, 198, 0.4),
+        -3px -3px 10px rgba(255, 255, 255, 0.8);
+    }
+
+    .preset.active {
+      background: linear-gradient(145deg, #e07b54, #d06a45);
+      color: #FFFFFF;
+      box-shadow: 
+        inset 3px 3px 6px rgba(180, 90, 60, 0.2),
+        inset -2px -2px 5px rgba(255, 255, 255, 0.1),
+        4px 4px 12px rgba(224, 123, 84, 0.3);
+    }
+
+    .preset:not(.active):hover {
+      transform: translateY(-2px);
+      box-shadow: 
+        7px 7px 16px rgba(163, 177, 198, 0.5),
+        -5px -5px 14px rgba(255, 255, 255, 0.9);
+    }
+
+    /* Custom Input - Neumorphic */
+    .custom-input-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 16px;
+      background: linear-gradient(145deg, #ffffff, #e6e9ed);
+      border-radius: 24px;
+      box-shadow: 
+        inset 3px 3px 8px rgba(163, 177, 198, 0.3),
+        inset -2px -2px 6px rgba(255, 255, 255, 0.8);
+      transition: all 0.2s ease;
+      border: none;
+    }
+
+    .custom-input-wrapper:focus-within {
+      box-shadow: 
+        inset 4px 4px 10px rgba(163, 177, 198, 0.4),
+        inset -3px -3px 8px rgba(255, 255, 255, 0.9),
+        0 0 0 2px rgba(224, 123, 84, 0.3);
+    }
+
+    .custom-input {
+      width: 44px;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: #3d4a5c;
+      font-size: 14px;
+      font-weight: 500;
+      font-family: inherit;
+      text-align: center;
+    }
+
+    .custom-input::placeholder {
+      color: #a0aab8;
+    }
+
+    .custom-input::-webkit-inner-spin-button,
+    .custom-input::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    .custom-unit {
+      color: #8896a6;
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .custom-btn {
+      padding: 8px 14px;
+      background: linear-gradient(145deg, #e07b54, #d06a45);
+      border: none;
+      border-radius: 14px;
+      color: #FFFFFF;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 2px 2px 6px rgba(224, 123, 84, 0.3);
+      transition: all 0.2s ease;
+    }
+
+    .custom-btn:hover {
+      background: linear-gradient(145deg, #e88a66, #d97755);
+      transform: translateY(-1px);
+    }
+
+    /* Event Name Input */
+    .event-name-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 20px;
+      background: linear-gradient(145deg, #ffffff, #e6e9ed);
+      border-radius: 24px;
+      box-shadow: 
+        inset 3px 3px 8px rgba(163, 177, 198, 0.3),
+        inset -2px -2px 6px rgba(255, 255, 255, 0.8);
+      transition: all 0.2s ease;
+      border: none;
+      width: 100%;
+      max-width: 320px;
+    }
+
+    .event-name-wrapper:focus-within {
+      box-shadow: 
+        inset 4px 4px 10px rgba(163, 177, 198, 0.4),
+        inset -3px -3px 8px rgba(255, 255, 255, 0.9),
+        0 0 0 2px rgba(224, 123, 84, 0.3);
+    }
+
+    .event-name-icon {
+      width: 20px;
+      height: 20px;
+      stroke: #8896a6;
+      fill: none;
+      stroke-width: 2;
+      flex-shrink: 0;
+    }
+
+    .event-name-input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: #3d4a5c;
+      font-size: 14px;
+      font-weight: 500;
+      font-family: inherit;
+    }
+
+    .event-name-input::placeholder {
+      color: #a0aab8;
+    }
+
+    /* ========== Usage Report Section - Dark Theme (Like Image) ========== */
+    .usage-report {
+      width: 100%;
+      padding: 48px 60px;
+      background: linear-gradient(145deg, #f5f7fa 0%, #e4e8ed 50%, #dde3ea 100%);
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      align-items: stretch;
+      gap: 24px;
+    }
+
+    .report-card {
+      flex: 1;
+      max-width: 550px;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      overflow: hidden;
+      background: #1a1a2e;
+      border-radius: 24px;
+      padding: 24px;
+      box-shadow: 
+        0 20px 60px rgba(0, 0, 0, 0.3),
+        0 0 0 1px rgba(255, 255, 255, 0.05);
+    }
+
+    .month-report-card {
+      flex: 1;
+      max-width: 550px;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      overflow: hidden;
+      background: #1a1a2e;
+      border-radius: 24px;
+      padding: 24px;
+      box-shadow: 
+        0 20px 60px rgba(0, 0, 0, 0.3),
+        0 0 0 1px rgba(255, 255, 255, 0.05);
+    }
+
+    .report-header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .report-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: #ffffff;
+      margin-bottom: 16px;
+    }
+
+    /* Date Selector */
+    .date-selector {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 8px 0;
+    }
+
+    .date-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      padding: 8px 12px;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+      min-width: 48px;
+    }
+
+    .date-item:hover {
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .date-item.active {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .date-weekday {
+      font-size: 11px;
+      color: #6b7280;
+      font-weight: 500;
+    }
+
+    .date-day {
+      font-size: 18px;
+      font-weight: 600;
+      color: #ffffff;
+    }
+
+    .date-calendar-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .date-calendar-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .date-calendar-btn svg {
+      width: 18px;
+      height: 18px;
+      stroke: #9ca3af;
+      fill: none;
+      stroke-width: 2;
+    }
+
+    /* Today Stats */
+    .today-stats {
+      padding: 20px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .today-label {
+      font-size: 13px;
+      color: #6b7280;
+      margin-bottom: 8px;
+    }
+
+    .today-time {
+      font-size: 32px;
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 4px;
+    }
+
+    .today-date {
+      font-size: 13px;
+      color: #6b7280;
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      padding: 20px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .stat-box {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      padding: 16px;
+    }
+
+    .stat-box-label {
+      font-size: 12px;
+      color: #6b7280;
+      margin-bottom: 8px;
+    }
+
+    .stat-box-value {
+      font-size: 24px;
+      font-weight: 700;
+      color: #ffffff;
+    }
+
+    /* Time Heatmap */
+    .heatmap-section {
+      padding: 20px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .heatmap-container {
+      position: relative;
+    }
+
+    .heatmap-y-axis {
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 20px;
+      width: 30px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      font-size: 10px;
+      color: #6b7280;
+    }
+
+    .heatmap-grid {
+      margin-left: 35px;
+      display: grid;
+      grid-template-columns: repeat(24, 1fr);
+      grid-template-rows: repeat(6, 1fr);
+      gap: 2px;
+    }
+
+    .heatmap-cell {
+      aspect-ratio: 1;
+      border-radius: 3px;
+      background: rgba(255, 255, 255, 0.05);
+      min-width: 12px;
+      min-height: 12px;
+    }
+
+    .heatmap-cell.level-1 { background: #3b82f6; opacity: 0.4; }
+    .heatmap-cell.level-2 { background: #3b82f6; opacity: 0.6; }
+    .heatmap-cell.level-3 { background: #3b82f6; opacity: 0.8; }
+    .heatmap-cell.level-4 { background: #3b82f6; }
+    .heatmap-cell.level-orange { background: #f97316; }
+    .heatmap-cell.level-pink { background: #ec4899; }
+    .heatmap-cell.level-green { background: #22c55e; }
+
+    .heatmap-x-axis {
+      margin-left: 35px;
+      display: flex;
+      justify-content: space-between;
+      padding-top: 8px;
+      font-size: 10px;
+      color: #6b7280;
+    }
+
+    /* Month Calendar - Always Visible */
+    .month-calendar-section {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      padding: 0;
+    }
+
+    .month-calendar-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .month-nav-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .month-nav-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .month-nav-btn svg {
+      width: 16px;
+      height: 16px;
+      stroke: #9ca3af;
+      fill: none;
+      stroke-width: 2;
+    }
+
+    .month-year-label {
+      font-size: 18px;
+      font-weight: 600;
+      color: #ffffff;
+    }
+
+    .month-weekday-header {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .month-weekday {
+      text-align: center;
+      font-size: 12px;
+      color: #6b7280;
+      font-weight: 500;
+    }
+
+    .month-days-grid {
+      flex: 1;
+      min-height: 160px;
+      max-height: 240px;
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 6px;
+      overflow: hidden;
+    }
+
+    .month-day-cell {
+      position: relative;
+      min-width: 0;
+      min-height: 0;
+      aspect-ratio: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      color: #6b7280;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: all 0.2s;
+      overflow: hidden;
+    }
+
+    .month-day-cell.empty {
+      cursor: default;
+    }
+
+    .month-day-cell:not(.empty):hover {
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .month-day-cell.today {
+      color: #ffffff;
+      font-weight: 600;
+    }
+
+    .month-day-cell.selected {
+      background: rgba(224, 123, 84, 0.2);
+      color: #e07b54;
+      font-weight: 600;
+    }
+
+    .month-day-cell.used {
+      color: #ffffff;
+      font-weight: 600;
+    }
+
+    /* Gradient Ring for Used Days */
+    .month-day-cell.used::before {
+      content: '';
+      position: absolute;
+      inset: 2px;
+      border-radius: 50%;
+      padding: 2px;
+      background: conic-gradient(
+        from 0deg,
+        #e07b54,
+        #f4a574,
+        #ffd166,
+        #06d6a0,
+        #118ab2,
+        #7b68ee,
+        #e07b54
+      );
+      -webkit-mask: 
+        linear-gradient(#fff 0 0) content-box, 
+        linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      opacity: 0.8;
+    }
+
+    .month-day-cell.used.intensity-1::before { opacity: 0.4; }
+    .month-day-cell.used.intensity-2::before { opacity: 0.6; }
+    .month-day-cell.used.intensity-3::before { opacity: 0.8; }
+    .month-day-cell.used.intensity-4::before { opacity: 1; }
+
+    /* Month Stats Summary */
+    .month-stats-summary {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      margin-top: 20px;
+      padding-top: 16px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .month-stat {
+      text-align: center;
+    }
+
+    .month-stat-value {
+      font-size: 24px;
+      font-weight: 700;
+      background: linear-gradient(135deg, #e07b54, #f4a574);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .month-stat-label {
+      font-size: 11px;
+      color: #6b7280;
+      margin-top: 4px;
+    }
+
+    /* Legend */
+    .month-legend {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 16px;
+      margin-top: 16px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      color: #6b7280;
+    }
+
+    .legend-circle {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      position: relative;
+    }
+
+    .legend-circle.unused {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .legend-circle.used::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      padding: 2px;
+      background: conic-gradient(
+        from 0deg,
+        #e07b54,
+        #f4a574,
+        #ffd166,
+        #06d6a0,
+        #118ab2,
+        #7b68ee,
+        #e07b54
+      );
+      -webkit-mask: 
+        linear-gradient(#fff 0 0) content-box, 
+        linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+    }
+
+    /* Event Records Section */
+    .event-records {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      padding: 20px 0;
+    }
+
+    .event-records-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #9ca3af;
+      margin-bottom: 12px;
+    }
+
+    .event-list {
+      flex: 1;
+      min-height: 100px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      overflow-y: auto;
+    }
+
+    .event-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      transition: all 0.2s;
+    }
+
+    .event-item:hover {
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .event-time-badge {
+      padding: 4px 10px;
+      background: rgba(224, 123, 84, 0.2);
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #e07b54;
+      flex-shrink: 0;
+    }
+
+    .event-name {
+      flex: 1;
+      font-size: 14px;
+      color: #ffffff;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .event-duration {
+      font-size: 13px;
+      color: #6b7280;
+      flex-shrink: 0;
+    }
+
+    .no-events {
+      text-align: center;
+      padding: 24px;
+      color: #6b7280;
+      font-size: 13px;
+    }
+
+    .no-events-icon {
+      font-size: 32px;
+      margin-bottom: 8px;
+      opacity: 0.5;
+    }
+
+    /* Footer in Card */
+    .report-footer {
+      text-align: center;
+      padding-top: 16px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .report-brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: #6b7280;
+    }
+
+    .report-brand-icon {
+      width: 16px;
+      height: 16px;
+      border-radius: 4px;
+      background: linear-gradient(135deg, #e07b54, #f4a574);
+    }
+
+    /* Footer */
+    .footer {
+      padding: 32px 60px;
+      background: linear-gradient(180deg, rgba(245,247,250,0.5) 0%, rgba(235,239,244,0.9) 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .footer-logo {
+      font-size: 18px;
+      font-weight: 700;
+      color: #e07b54;
+    }
+
+    .footer-text {
+      font-size: 12px;
+      color: #a0aab8;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 24px;
+    }
+
+    .footer-links a {
+      font-size: 12px;
+      color: #a0aab8;
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .footer-links a:hover {
+      color: #5a6a7a;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .main {
+        padding: 20px 20px 40px;
+      }
+
+      .timer-container {
+        width: 280px;
+        height: 280px;
+      }
+
+      .timer-inner-ring {
+        width: 240px;
+        height: 240px;
+      }
+
+      .timer-ring-wrapper {
+        width: 220px;
+        height: 220px;
+      }
+
+      .timer-time {
+        font-size: 52px;
+      }
+      
+      .presets {
+        gap: 12px;
+      }
+
+      .usage-report {
+        padding: 32px 20px;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .report-card,
+      .month-report-card {
+        max-width: 100%;
+        padding: 20px;
+      }
+
+      .date-selector {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .heatmap-grid {
+        overflow-x: auto;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .controls {
+        flex-direction: column;
+        gap: 16px;
+      }
+
+      .btn-start {
+        width: 200px;
+      }
+
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <a href="../index.html" class="logo">Pomor</a>
+  </header>
+
+  <!-- Main Content -->
+  <main class="main">
+    <!-- Timer Section -->
+    <div class="timer-section">
+      <!-- Timer - Neumorphic Design -->
+      <div class="timer-container">
+        <div class="timer-inner-ring"></div>
+        <div class="timer-ring-wrapper">
+          <svg class="timer-ring" viewBox="0 0 260 260">
+            <defs>
+              <linearGradient id="timerGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#e07b54"/>
+                <stop offset="50%" stop-color="#f4a574"/>
+                <stop offset="100%" stop-color="#e07b54"/>
+              </linearGradient>
+            </defs>
+            <circle class="timer-ring-bg" cx="130" cy="130" r="120"/>
+            <circle class="timer-ring-progress" id="progressRing" cx="130" cy="130" r="120"/>
+          </svg>
+        </div>
+        <div class="timer-inner">
+          <div class="timer-time" id="timerDisplay">25:00</div>
+          <div class="timer-label" id="timerLabel">专注时间</div>
+        </div>
+      </div>
+
+      <!-- Controls -->
+      <div class="controls">
+        <button class="btn-start" id="btnStart">
+          <svg id="iconPlay" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          <svg id="iconPause" viewBox="0 0 24 24" style="display:none;"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+          <span id="btnText">开始专注</span>
+        </button>
+        <button class="btn-reset" id="btnReset" title="重置">
+          <svg viewBox="0 0 24 24">
+            <polyline points="1 4 1 10 7 10"/>
+            <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Event Name Input -->
+      <div class="event-name-wrapper">
+        <svg class="event-name-icon" viewBox="0 0 24 24">
+          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+        </svg>
+        <input type="text" class="event-name-input" id="eventNameInput" placeholder="输入专注事项（可选）" maxlength="50">
+      </div>
+
+      <!-- Presets -->
+      <div class="presets">
+        <button class="preset active" data-minutes="25">25 分钟</button>
+        <button class="preset" data-minutes="15">15 分钟</button>
+        <button class="preset" data-minutes="5">5 分钟</button>
+        <div class="custom-input-wrapper">
+          <input type="number" class="custom-input" id="customMinutes" placeholder="25" min="0" max="120">
+          <span class="custom-unit">分</span>
+          <input type="number" class="custom-input" id="customSeconds" placeholder="0" min="0" max="59">
+          <span class="custom-unit">秒</span>
+          <button class="custom-btn" id="btnCustom">确定</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Usage Report Section -->
+  <section class="usage-report">
+    <!-- Daily Report Card -->
+    <div class="report-card">
+      <!-- Header -->
+      <div class="report-header">
+        <div class="report-title">时间使用报告</div>
+        
+        <!-- Date Selector -->
+        <div class="date-selector" id="dateSelector">
+          <!-- Will be generated by JS -->
+        </div>
+      </div>
+
+      <!-- Today Stats -->
+      <div class="today-stats">
+        <div class="today-label">当日专注时间</div>
+        <div class="today-time" id="todayTime">0 小时 0 分钟</div>
+        <div class="today-date" id="todayDate"></div>
+      </div>
+
+      <!-- Stats Grid -->
+      <div class="stats-grid">
+        <div class="stat-box">
+          <div class="stat-box-label">专注次数</div>
+          <div class="stat-box-value"><span id="focusCount">0</span> 次</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-box-label">平均每次</div>
+          <div class="stat-box-value"><span id="avgTime">0</span> 分钟</div>
+        </div>
+      </div>
+
+      <!-- Time Heatmap -->
+      <div class="heatmap-section">
+        <div class="heatmap-container">
+          <div class="heatmap-y-axis">
+            <span>60</span>
+            <span>50</span>
+            <span>40</span>
+            <span>30</span>
+            <span>20</span>
+            <span>10</span>
+          </div>
+          <div class="heatmap-grid" id="heatmapGrid">
+            <!-- Will be generated by JS -->
+          </div>
+          <div class="heatmap-x-axis">
+            <span>00:00</span>
+            <span>06:00</span>
+            <span>12:00</span>
+            <span>18:00</span>
+            <span>24:00</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Event Records -->
+      <div class="event-records">
+        <div class="event-records-title">专注事件记录</div>
+        <div class="event-list" id="eventList">
+          <!-- Will be generated by JS -->
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="report-footer">
+        <div class="report-brand">
+          <div class="report-brand-icon"></div>
+          <span>Pomor</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Monthly Report Card -->
+    <div class="month-report-card">
+      <!-- Header -->
+      <div class="report-header">
+        <div class="report-title">月度使用报告</div>
+      </div>
+
+      <!-- Month Calendar -->
+      <div class="month-calendar-section">
+        <div class="month-calendar-header">
+          <button class="month-nav-btn" id="prevMonth">
+            <svg viewBox="0 0 24 24">
+              <polyline points="15 18 9 12 15 6"/>
+            </svg>
+          </button>
+          <span class="month-year-label" id="monthYearLabel">2024年2月</span>
+          <button class="month-nav-btn" id="nextMonth">
+            <svg viewBox="0 0 24 24">
+              <polyline points="9 6 15 12 9 18"/>
+            </svg>
+          </button>
+        </div>
+
+        <div class="month-weekday-header">
+          <div class="month-weekday">日</div>
+          <div class="month-weekday">一</div>
+          <div class="month-weekday">二</div>
+          <div class="month-weekday">三</div>
+          <div class="month-weekday">四</div>
+          <div class="month-weekday">五</div>
+          <div class="month-weekday">六</div>
+        </div>
+
+        <div class="month-days-grid" id="monthDaysGrid">
+          <!-- Will be generated by JS -->
+        </div>
+
+        <div class="month-stats-summary">
+          <div class="month-stat">
+            <div class="month-stat-value" id="monthTotalDays">0</div>
+            <div class="month-stat-label">专注天数</div>
+          </div>
+          <div class="month-stat">
+            <div class="month-stat-value" id="monthTotalSessions">0</div>
+            <div class="month-stat-label">完成次数</div>
+          </div>
+          <div class="month-stat">
+            <div class="month-stat-value" id="monthTotalMinutes">0</div>
+            <div class="month-stat-label">总分钟数</div>
+          </div>
+        </div>
+
+        <div class="month-legend">
+          <div class="legend-item">
+            <div class="legend-circle unused"></div>
+            <span>未使用</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-circle used"></div>
+            <span>已使用</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="report-footer">
+        <div class="report-brand">
+          <div class="report-brand-icon"></div>
+          <span>Pomor</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-logo">Pomor</div>
+    <div class="footer-text">© 2024 Pomor. 专注让生活更美好。</div>
+    <div class="footer-links">
+      <a href="#">隐私政策</a>
+      <a href="#">服务条款</a>
+      <a href="#">联系我们</a>
+    </div>
+  </footer>
+
+  <script>
+    // Timer State
+    let totalSeconds = 25 * 60;
+    let remainingSeconds = totalSeconds;
+    let isRunning = false;
+    let timerId = null;
+    let audioCtx = null;
+
+    // DOM Elements
+    const timerDisplay = document.getElementById('timerDisplay');
+    const timerLabel = document.getElementById('timerLabel');
+    const progressRing = document.getElementById('progressRing');
+    const btnStart = document.getElementById('btnStart');
+    const btnText = document.getElementById('btnText');
+    const iconPlay = document.getElementById('iconPlay');
+    const iconPause = document.getElementById('iconPause');
+    const btnReset = document.getElementById('btnReset');
+    const presets = document.querySelectorAll('.preset');
+
+    // Constants
+    const circumference = 2 * Math.PI * 120;
+    progressRing.style.strokeDasharray = circumference;
+
+    // Format time as MM:SS
+    function formatTime(seconds) {
+      const m = Math.floor(seconds / 60);
+      const s = seconds % 60;
+      return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+    }
+
+    // Update display
+    function updateDisplay() {
+      timerDisplay.textContent = formatTime(remainingSeconds);
+      
+      const progress = (totalSeconds - remainingSeconds) / totalSeconds;
+      const offset = circumference * (1 - progress);
+      progressRing.style.strokeDashoffset = offset;
+
+      if (isRunning) {
+        timerLabel.textContent = '专注中...';
+      } else if (remainingSeconds === totalSeconds) {
+        timerLabel.textContent = '专注时间';
+      } else if (remainingSeconds === 0) {
+        timerLabel.textContent = '已完成！';
+      } else {
+        timerLabel.textContent = '已暂停';
+      }
+    }
+
+    // Play soft chime sound
+    async function playChime() {
+      try {
+        const AudioContextCtor = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContextCtor) return;
+
+        if (!audioCtx) {
+          audioCtx = new AudioContextCtor();
+        }
+        if (audioCtx.state === 'suspended') {
+          await audioCtx.resume();
+        }
+
+        const playNote = (startTime, frequency, volume) => {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          const filter = audioCtx.createBiquadFilter();
+          
+          filter.type = 'lowpass';
+          filter.frequency.value = 800;
+          filter.Q.value = 0.3;
+
+          osc.type = 'sine';
+          osc.frequency.value = frequency;
+
+          const duration = 2.5;
+          gain.gain.setValueAtTime(0.0001, startTime);
+          gain.gain.exponentialRampToValueAtTime(volume, startTime + 0.15);
+          gain.gain.exponentialRampToValueAtTime(volume * 0.6, startTime + 0.5);
+          gain.gain.exponentialRampToValueAtTime(0.0001, startTime + duration);
+
+          osc.connect(filter);
+          filter.connect(gain);
+          gain.connect(audioCtx.destination);
+
+          osc.start(startTime);
+          osc.stop(startTime + duration + 0.1);
+        };
+
+        const now = audioCtx.currentTime;
+        playNote(now, 392, 0.12);
+        playNote(now + 1.2, 440, 0.10);
+        playNote(now + 2.4, 392, 0.08);
+      } catch (e) {
+        console.log('Audio not available');
+      }
+    }
+
+    // Start timer
+    function start() {
+      if (isRunning) return;
+      if (remainingSeconds <= 0) {
+        remainingSeconds = totalSeconds;
+      }
+      isRunning = true;
+      btnText.textContent = '暂停';
+      iconPlay.style.display = 'none';
+      iconPause.style.display = 'block';
+      
+      timerId = setInterval(() => {
+        if (remainingSeconds > 0) {
+          remainingSeconds--;
+          updateDisplay();
+        } else {
+          clearInterval(timerId);
+          timerId = null;
+          isRunning = false;
+          btnText.textContent = '开始专注';
+          iconPlay.style.display = 'block';
+          iconPause.style.display = 'none';
+          playChime();
+          updateDisplay();
+          recordUsage();
+        }
+      }, 1000);
+    }
+
+    // Pause timer
+    function pause() {
+      if (!isRunning) return;
+      isRunning = false;
+      if (timerId) {
+        clearInterval(timerId);
+        timerId = null;
+      }
+      btnText.textContent = '继续';
+      iconPlay.style.display = 'block';
+      iconPause.style.display = 'none';
+      updateDisplay();
+    }
+
+    // Reset timer
+    function reset() {
+      pause();
+      remainingSeconds = totalSeconds;
+      btnText.textContent = '开始专注';
+      updateDisplay();
+    }
+
+    // Set duration (in minutes)
+    function setDuration(minutes) {
+      setDurationSeconds(minutes * 60);
+    }
+
+    // Set duration (in seconds)
+    function setDurationSeconds(seconds) {
+      totalSeconds = Math.max(1, Math.floor(seconds));
+      remainingSeconds = totalSeconds;
+      if (timerId) {
+        clearInterval(timerId);
+        timerId = null;
+      }
+      isRunning = false;
+      btnText.textContent = '开始专注';
+      iconPlay.style.display = 'block';
+      iconPause.style.display = 'none';
+      updateDisplay();
+    }
+
+    // Event Listeners
+    const customMinutesInput = document.getElementById('customMinutes');
+    const customSecondsInput = document.getElementById('customSeconds');
+    const btnCustom = document.getElementById('btnCustom');
+    const eventNameInput = document.getElementById('eventNameInput');
+
+    function parseCustomDuration() {
+      const minutes = parseInt(customMinutesInput.value) || 0;
+      const seconds = parseInt(customSecondsInput.value) || 0;
+      return minutes * 60 + seconds;
+    }
+
+    // Update currentEventName when input changes
+    eventNameInput.addEventListener('input', () => {
+      currentEventName = eventNameInput.value;
+    });
+
+    btnStart.addEventListener('click', () => {
+      if (isRunning) {
+        pause();
+      } else {
+        start();
+      }
+    });
+
+    btnReset.addEventListener('click', reset);
+
+    presets.forEach(preset => {
+      preset.addEventListener('click', () => {
+        presets.forEach(p => p.classList.remove('active'));
+        preset.classList.add('active');
+        customMinutesInput.value = '';
+        customSecondsInput.value = '';
+        const minutes = parseInt(preset.dataset.minutes);
+        setDuration(minutes);
+      });
+    });
+
+    btnCustom.addEventListener('click', () => {
+      const totalSeconds = parseCustomDuration();
+      if (totalSeconds >= 1) {
+        presets.forEach(p => p.classList.remove('active'));
+        setDurationSeconds(totalSeconds);
+      }
+    });
+
+    customMinutesInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        const totalSeconds = parseCustomDuration();
+        if (totalSeconds >= 1) {
+          presets.forEach(p => p.classList.remove('active'));
+          setDurationSeconds(totalSeconds);
+        }
+      }
+    });
+
+    customSecondsInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        const totalSeconds = parseCustomDuration();
+        if (totalSeconds >= 1) {
+          presets.forEach(p => p.classList.remove('active'));
+          setDurationSeconds(totalSeconds);
+        }
+      }
+    });
+
+    // Initialize
+    updateDisplay();
+
+    // ========== Usage Report ==========
+    const STORAGE_KEY = 'pomor_usage_data';
+    let selectedDate = new Date();
+    let currentEventName = ''; // Current event name for the timer
+    const weekDayNames = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+    const eventColors = ['#3b82f6', '#ec4899', '#22c55e', '#8b5cf6', '#f97316', '#06d6a0'];
+
+    function loadUsageData() {
+      try {
+        const data = localStorage.getItem(STORAGE_KEY);
+        return data ? JSON.parse(data) : {};
+      } catch (e) {
+        return {};
+      }
+    }
+
+    function saveUsageData(data) {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      } catch (e) {
+        console.log('Failed to save usage data');
+      }
+    }
+
+    function recordUsage() {
+      const now = new Date();
+      const dateStr = now.toISOString().split('T')[0];
+      const hour = now.getHours();
+      const minute = now.getMinutes();
+      const data = loadUsageData();
+      
+      if (!data[dateStr]) {
+        data[dateStr] = { 
+          count: 0, 
+          totalMinutes: 0, 
+          hours: {},
+          events: []
+        };
+      }
+      
+      data[dateStr].count += 1;
+      data[dateStr].totalMinutes += Math.round(totalSeconds / 60);
+      
+      // Record hour data for heatmap
+      if (!data[dateStr].hours[hour]) {
+        data[dateStr].hours[hour] = 0;
+      }
+      data[dateStr].hours[hour] += Math.round(totalSeconds / 60);
+      
+      // Record event with name and time
+      const eventName = currentEventName.trim() || '专注时段';
+      const timeStr = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+      const durationMinutes = Math.round(totalSeconds / 60);
+      
+      data[dateStr].events.push({
+        name: eventName,
+        time: timeStr,
+        duration: durationMinutes,
+        timestamp: now.getTime()
+      });
+      
+      saveUsageData(data);
+      renderReport();
+      renderMonthCalendar();
+    }
+
+    function formatDateStr(date) {
+      return date.toISOString().split('T')[0];
+    }
+
+    function renderDateSelector() {
+      const container = document.getElementById('dateSelector');
+      container.innerHTML = '';
+      
+      // Generate 7 days centered on selected date
+      const dates = [];
+      for (let i = -3; i <= 3; i++) {
+        const d = new Date(selectedDate);
+        d.setDate(d.getDate() + i);
+        dates.push(d);
+      }
+      
+      dates.forEach(d => {
+        const item = document.createElement('div');
+        item.className = 'date-item' + (formatDateStr(d) === formatDateStr(selectedDate) ? ' active' : '');
+        item.innerHTML = `
+          <span class="date-weekday">${weekDayNames[d.getDay()]}</span>
+          <span class="date-day">${d.getDate()}</span>
+        `;
+        item.addEventListener('click', () => {
+          selectedDate = d;
+          renderReport();
+        });
+        container.appendChild(item);
+      });
+      
+      // Calendar button
+      const calBtn = document.createElement('button');
+      calBtn.className = 'date-calendar-btn';
+      calBtn.innerHTML = `
+        <svg viewBox="0 0 24 24">
+          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+          <line x1="16" y1="2" x2="16" y2="6"/>
+          <line x1="8" y1="2" x2="8" y2="6"/>
+          <line x1="3" y1="10" x2="21" y2="10"/>
+        </svg>
+      `;
+      container.appendChild(calBtn);
+    }
+
+    function renderHeatmap(dayData) {
+      const container = document.getElementById('heatmapGrid');
+      container.innerHTML = '';
+      
+      // Create 6 rows (for 10-minute increments) x 24 columns (hours)
+      for (let row = 5; row >= 0; row--) {
+        for (let hour = 0; hour < 24; hour++) {
+          const cell = document.createElement('div');
+          cell.className = 'heatmap-cell';
+          
+          // Check if there's data for this hour
+          if (dayData && dayData.hours && dayData.hours[hour]) {
+            const minutes = dayData.hours[hour];
+            const level = Math.min(4, Math.ceil(minutes / 15));
+            
+            // Assign different colors based on pattern
+            if (minutes > 30) {
+              cell.classList.add('level-' + level);
+            } else if (minutes > 15) {
+              cell.classList.add('level-orange');
+            } else if (minutes > 0) {
+              cell.classList.add('level-green');
+            }
+          }
+          
+          container.appendChild(cell);
+        }
+      }
+    }
+
+    function renderEventRecords(dayData) {
+      const container = document.getElementById('eventList');
+      container.innerHTML = '';
+      
+      const events = dayData && dayData.events ? dayData.events : [];
+      
+      if (events.length === 0) {
+        container.innerHTML = `
+          <div class="no-events">
+            <div class="no-events-icon">📝</div>
+            <div>当日暂无专注记录</div>
+          </div>
+        `;
+        return;
+      }
+      
+      // Sort events by timestamp (newest first)
+      const sortedEvents = [...events].sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+      
+      sortedEvents.forEach((event, index) => {
+        const color = eventColors[index % eventColors.length];
+        const item = document.createElement('div');
+        item.className = 'event-item';
+        item.innerHTML = `
+          <span class="event-time-badge">${event.time}</span>
+          <span class="event-name">${event.name}</span>
+          <span class="event-duration">${event.duration} 分钟</span>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    function renderReport() {
+      const data = loadUsageData();
+      const dateStr = formatDateStr(selectedDate);
+      const dayData = data[dateStr] || { count: 0, totalMinutes: 0, hours: {}, tags: {} };
+      
+      // Update date selector
+      renderDateSelector();
+      
+      // Update today date
+      const year = selectedDate.getFullYear();
+      const month = selectedDate.getMonth() + 1;
+      const day = selectedDate.getDate();
+      document.getElementById('todayDate').textContent = `${year}年${month.toString().padStart(2, '0')}月${day.toString().padStart(2, '0')}日`;
+      
+      // Update time
+      const hours = Math.floor(dayData.totalMinutes / 60);
+      const mins = dayData.totalMinutes % 60;
+      if (hours > 0) {
+        document.getElementById('todayTime').textContent = `${hours} 小时 ${mins} 分钟`;
+      } else {
+        document.getElementById('todayTime').textContent = `${mins} 分钟`;
+      }
+      
+      // Update stats
+      document.getElementById('focusCount').textContent = dayData.count;
+      const avgTime = dayData.count > 0 ? Math.round(dayData.totalMinutes / dayData.count) : 0;
+      document.getElementById('avgTime').textContent = avgTime;
+      
+      // Render heatmap
+      renderHeatmap(dayData);
+      
+      // Render event records
+      renderEventRecords(dayData);
+    }
+
+    // Initialize report
+    renderReport();
+
+    // ========== Month Calendar ==========
+    let calendarMonth = new Date().getMonth();
+    let calendarYear = new Date().getFullYear();
+
+    function getDaysInMonth(year, month) {
+      return new Date(year, month + 1, 0).getDate();
+    }
+
+    function getFirstDayOfMonth(year, month) {
+      return new Date(year, month, 1).getDay();
+    }
+
+    function getIntensityLevel(count, totalMinutes) {
+      if (count === 0) return 0;
+      if (totalMinutes <= 15) return 1;
+      if (totalMinutes <= 45) return 2;
+      if (totalMinutes <= 90) return 3;
+      return 4;
+    }
+
+    function renderMonthCalendar() {
+      const data = loadUsageData();
+      const container = document.getElementById('monthDaysGrid');
+      const today = new Date();
+      
+      container.innerHTML = '';
+      
+      // Update month label
+      document.getElementById('monthYearLabel').textContent = 
+        `${calendarYear}年${calendarMonth + 1}月`;
+      
+      const daysInMonth = getDaysInMonth(calendarYear, calendarMonth);
+      const firstDay = getFirstDayOfMonth(calendarYear, calendarMonth);
+      
+      // Calculate monthly stats
+      let monthDays = 0;
+      let monthSessions = 0;
+      let monthMinutes = 0;
+      
+      // Empty cells for days before first day
+      for (let i = 0; i < firstDay; i++) {
+        const emptyCell = document.createElement('div');
+        emptyCell.className = 'month-day-cell empty';
+        container.appendChild(emptyCell);
+      }
+      
+      // Day cells
+      for (let day = 1; day <= daysInMonth; day++) {
+        const cell = document.createElement('div');
+        cell.className = 'month-day-cell';
+        
+        const dateStr = `${calendarYear}-${String(calendarMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        const dayData = data[dateStr];
+        
+        // Check if today
+        if (today.getFullYear() === calendarYear && 
+            today.getMonth() === calendarMonth && 
+            today.getDate() === day) {
+          cell.classList.add('today');
+        }
+        
+        // Check if selected
+        if (selectedDate.getFullYear() === calendarYear && 
+            selectedDate.getMonth() === calendarMonth && 
+            selectedDate.getDate() === day) {
+          cell.classList.add('selected');
+        }
+        
+        // Check if used
+        if (dayData && dayData.count > 0) {
+          cell.classList.add('used');
+          const intensity = getIntensityLevel(dayData.count, dayData.totalMinutes);
+          cell.classList.add(`intensity-${intensity}`);
+          
+          // Update stats
+          monthDays++;
+          monthSessions += dayData.count;
+          monthMinutes += dayData.totalMinutes;
+        }
+        
+        cell.textContent = day;
+        
+        // Click to select date
+        cell.addEventListener('click', () => {
+          selectedDate = new Date(calendarYear, calendarMonth, day);
+          renderReport();
+          renderMonthCalendar();
+        });
+        
+        container.appendChild(cell);
+      }
+      
+      // Update stats display
+      document.getElementById('monthTotalDays').textContent = monthDays;
+      document.getElementById('monthTotalSessions').textContent = monthSessions;
+      document.getElementById('monthTotalMinutes').textContent = monthMinutes;
+    }
+
+    // Initialize month calendar on page load
+    renderMonthCalendar();
+
+    // Month navigation
+    document.getElementById('prevMonth').addEventListener('click', () => {
+      calendarMonth--;
+      if (calendarMonth < 0) {
+        calendarMonth = 11;
+        calendarYear--;
+      }
+      renderMonthCalendar();
+    });
+
+    document.getElementById('nextMonth').addEventListener('click', () => {
+      calendarMonth++;
+      if (calendarMonth > 11) {
+        calendarMonth = 0;
+        calendarYear++;
+      }
+      renderMonthCalendar();
+    });
+  </script>
+</body>
+</html>
