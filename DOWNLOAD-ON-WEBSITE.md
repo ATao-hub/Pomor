@@ -20,7 +20,7 @@ npm run dist
 
 ### 2. 在 GitHub 上发一个 Release 并上传 exe
 
-1. 打开 **https://github.com/wuyanzu03/Pomor**
+1. 打开 **https://github.com/ATao-hub/Pomor**
 2. 右侧点 **Releases** → **Create a new release**
 3. **Tag**：点 “Choose a tag”，输入 `v1.0.0`，选 “Create new tag”
 4. **Release title**：填 `v1.0.0` 或 `1.0.0 发布`
@@ -33,7 +33,7 @@ npm run dist
 发布成功后，在 Release 页面里点 **`Pomor Timer Setup 1.0.0.exe`**，浏览器会开始下载，地址栏就是直链，格式类似：
 
 ```
-https://github.com/wuyanzu03/Pomor/releases/download/v1.0.0/Pomor.Timer.Setup.1.0.0.exe
+https://github.com/ATao-hub/Pomor/releases/download/v1.0.0/Pomor.Timer.Setup.1.0.0.exe
 ```
 
 （实际文件名里的空格可能变成 `.`，以页面显示为准。）**复制这个地址。**
@@ -43,7 +43,7 @@ https://github.com/wuyanzu03/Pomor/releases/download/v1.0.0/Pomor.Timer.Setup.1.
 打开 **`docs/app.js`**，找到 **`DOWNLOAD_URL`**（约第 89 行），把空字符串改成你复制的地址，例如：
 
 ```js
-const DOWNLOAD_URL = 'https://github.com/wuyanzu03/Pomor/releases/download/v1.0.0/Pomor.Timer.Setup.1.0.0.exe';
+const DOWNLOAD_URL = 'https://github.com/ATao-hub/Pomor/releases/download/v1.0.0/Pomor.Timer.Setup.1.0.0.exe';
 ```
 
 保存后执行：
@@ -72,7 +72,7 @@ git push
    ```
 4. 在 **`docs/app.js`** 里设置：
    ```js
-   const DOWNLOAD_URL = 'https://wuyanzu03.github.io/Pomor/download/Pomor%20Timer%20Setup%201.0.0.exe';
+   const DOWNLOAD_URL = 'https://ATao-hub.github.io/Pomor/download/Pomor%20Timer%20Setup%201.0.0.exe';
    ```
    （文件名里的空格要写成 `%20`，或改成无空格文件名如 `Pomor-Timer-Setup-1.0.0.exe` 再填）
 

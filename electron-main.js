@@ -123,14 +123,10 @@ ipcMain.handle('stats:deleteSession', async (event, payload) => {
     totalSeconds: Math.max(0, current.totalSeconds - (item?.seconds || 0)),
     sessions: Math.max(0, (current.sessions || 1) - 1),
     items: current.items.filter((_, i) => i !== index)
-  };
-
-  if (updated.items.length === 0) {
+  };  if (updated.items.length === 0) {
     delete stats[date];
   } else {
     stats[date] = updated;
   }
-  s.set('stats', stats);
-
-  return stats;
+  s.set('stats', stats);  return stats;
 });

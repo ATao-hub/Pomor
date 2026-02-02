@@ -85,8 +85,8 @@
   }
 
   // 安装包下载地址：用 GitHub Releases 上传 exe 后，复制该文件的下载链接填到这里（见 DOWNLOAD-ON-WEBSITE.md）
-  // 例如：'https://github.com/wuyanzu03/Pomor/releases/download/v1.0.0/Pomor.Timer.Setup.1.0.0.exe'
-  const DOWNLOAD_URL = 'https://github.com/wuyanzu03/Pomor/releases/download/v1.0.0/Pomor.Timer.exe';
+  // 例如：'https://github.com/ATao-hub/Pomor/releases/download/v1.0.0/Pomor.Timer.Setup.1.0.0.exe'
+  const DOWNLOAD_URL = 'https://github.com/ATao-hub/Pomor/releases/download/v1.0.0/Pomor.Timer.exe';
 
   const btn = document.getElementById('btnDownload');
   const meta = document.getElementById('btnMeta');

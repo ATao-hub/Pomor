@@ -40,7 +40,7 @@ git branch -M main
 ```
 
 ```powershell
-git remote add origin https://github.com/wuyanzu03/Pomor.git
+git remote add origin https://github.com/ATao-hub/Pomor.git
 ```
 
 ```powershell
