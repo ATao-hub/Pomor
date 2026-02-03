@@ -29,6 +29,8 @@
     return { frag, nextIndex: idx };
   };
 
+  const isMobile = () => window.matchMedia('(max-width: 768px)').matches;
+
   const applyHeroTitleReveal = () => {
     if (!heroTitle) return;
 
@@ -38,10 +40,9 @@
     const plainText = (heroTitle.childNodes[0]?.textContent || '').trimEnd();
     const gradText = gradEl.textContent || '';
 
-    // 清空并重建：普通部分（打字机逐字）+ 空格 + 渐变整句（一句出现，渐变流动）
     heroTitle.textContent = '';
 
-    const step = 0.08; // 打字机速度：每个字间隔（秒）
+    const step = 0.08;
     let index = 0;
 
     const plain = buildCharSpans(plainText, index, step);
@@ -52,7 +53,17 @@
     heroTitle.appendChild(gap.frag);
     index = gap.nextIndex;
 
-    // “流动的节奏”逐字不同颜色，不统一渐变
+    // 手机端：用 span 渐变文字，可正常换行、不被裁剪
+    if (isMobile()) {
+      const span = document.createElement('span');
+      span.className = 'grad-phrase reveal-char';
+      span.style.animationDelay = `${(index * step).toFixed(3)}s`;
+      span.textContent = gradText;
+      heroTitle.appendChild(span);
+      return;
+    }
+
+    // 桌面端：SVG 逐字渐变色
     const charColors = ['#f4a574', '#f0a890', '#f0a0b8', '#d8a8e0', '#b8a0e8'];
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     svg.setAttribute('class', 'grad-svg reveal-char');
