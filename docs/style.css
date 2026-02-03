@@ -17,18 +17,21 @@
   box-sizing: border-box;
 }
 
-html,
-body {
+html {
   height: 100%;
+  overflow-x: hidden;
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
   margin: 0;
+  height: 100%;
   font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   color: var(--text);
   background: var(--bg);
   min-height: 100vh;
   overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
 }
 
 .bg {
@@ -926,5 +929,124 @@ details p {
   }
   .feature-right {
     justify-content: flex-start;
+  }
+}
+
+/* 手机端适配 */
+@media (max-width: 768px) {
+  .nav-inner {
+    padding: 12px 14px;
+  }
+  .nav-links {
+    gap: 8px;
+  }
+  .nav-links a {
+    font-size: 12px;
+    padding: 6px 8px;
+  }
+  .nav-btn-use {
+    font-size: 12px !important;
+    padding: 6px 12px !important;
+  }
+  .hero {
+    padding: 36px 16px 20px;
+  }
+  .pill {
+    font-size: 12px;
+    padding: 8px 12px;
+  }
+  .hero-title {
+    font-size: 38px;
+    white-space: normal;
+    line-height: 1.15;
+    margin: 12px 0 8px;
+  }
+  .hero-sub {
+    font-size: 14px;
+    padding: 0 8px;
+  }
+  .hero-cta {
+    flex-direction: column;
+    width: 100%;
+    max-width: 280px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .hero-cta .btn {
+    width: 100%;
+    justify-content: center;
+  }
+  .hero-cards {
+    gap: 10px;
+    margin-top: 16px;
+  }
+  .card {
+    padding: 12px 14px 10px;
+  }
+  .card-title {
+    font-size: 15px;
+  }
+  .card-desc {
+    font-size: 12px;
+  }
+  .preview {
+    margin-top: 12px;
+    border-radius: 16px;
+  }
+  .preview-body {
+    padding: 12px;
+  }
+  .mock-ring {
+    width: 160px;
+    height: 160px;
+    margin: 10px auto 8px;
+  }
+  .mock-ring svg {
+    width: 160px;
+    height: 160px;
+  }
+  .mock-time {
+    font-size: 32px;
+  }
+  .section {
+    padding: 24px 16px 10px;
+  }
+  .section-title {
+    font-size: 18px;
+  }
+  .feature-title-lg {
+    font-size: 28px;
+  }
+  .feature-sub {
+    font-size: 13px;
+  }
+  .feature-visual {
+    max-width: 100%;
+    height: 280px;
+  }
+  .footer-inner {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 16px 16px 32px;
+  }
+  .footer-right {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-title {
+    font-size: 30px;
+  }
+  .brand-text {
+    font-size: 14px;
+  }
+  .nav-links a:not(.nav-btn-use) {
+    display: none;
+  }
+  .pill span:last-child {
+    font-size: 11px;
   }
 }
